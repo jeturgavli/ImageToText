@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import pandas as pd
+import os
 
 # Function to install a Python module using pip
 def install_module(module_name):
@@ -14,7 +15,7 @@ def install_pytesseract():
 def install_openpyxl():
     install_module("openpyxl")
 
-# Function to install pytesseract
+# Function to install pandas
 def install_pandas():
     install_module("pandas")
 
@@ -58,8 +59,6 @@ def parse_text_to_excel(text, excel_file, folder_path):
                 temp.append(line[i])
                 Data["Time Seen"] = temp
 
-        import os
-
         df = pd.DataFrame(Data)
 
         # Check if the folder exists, if not create it
@@ -76,14 +75,17 @@ def parse_text_to_excel(text, excel_file, folder_path):
     except Exception as e:
         print("Error occurred while saving data to Excel:", e)
 
-
 # Prompt user to input path to the image file
 def get_image_path():
     image_path = input("Enter the path to the image file: ").strip('"')
     folder_path = input("Enter the folder path to save excel file: ").strip('"')
-    # folder_path = r"C:\Users\ADMIN\Downloads\test"
 
-    return (image_path,folder_path)
+    # Convert Windows paths to Unix paths if running on a Unix-based system
+    if os.name != 'nt':
+        image_path = image_path.replace('\\', '/')
+        folder_path = folder_path.replace('\\', '/')
+
+    return (image_path, folder_path)
 
 # Main function
 def main():
@@ -96,17 +98,17 @@ def main():
     install_pandas()
 
     # Get path to the image file
-    image_path,folder_path = get_image_path()
+    image_path, folder_path = get_image_path()
 
     # Extract text from image
     extracted_text = extract_text_from_image(image_path)
     print(extracted_text)
+
     # Path to the output Excel file
-    # folder_path = r"C:\Users\ADMIN\Downloads\test"
     excel_file = 'status.xlsx'
 
     # Parse extracted text and save to Excel
-    parse_text_to_excel(extracted_text, excel_file , folder_path)
+    parse_text_to_excel(extracted_text, excel_file, folder_path)
 
 if __name__ == "__main__":
     main()
